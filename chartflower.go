@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,10 +12,65 @@ import (
 )
 
 func main() {
-	chooseCsvFiles()
+	csvFiles := chooseCsvFiles()
+	columns := chooseColumns(csvFiles)
+	fmt.Println(columns)
 }
 
-func chooseCsvFiles() {
+func chooseColumns(csvFiles []string) []string {
+	var allColumns []string
+	for _, csvFile := range csvFiles {
+		csv := convertCSVToArray(csvFile)
+		columns := getColumns(csv)
+		for _, column := range columns {
+			if stringInSlice(column, allColumns) == false {
+				allColumns = append(allColumns, column)
+			}
+		}
+	}
+	println()
+	for i, column := range allColumns {
+		fmt.Printf("%v. %v\n", i, column)
+	}
+	print("\nChoose columns:")
+	input := getConsoleText()
+	choices := strings.Fields(input)
+	var chosenColumns []string
+	for i, column := range allColumns {
+		for _, choice := range choices {
+			if choice == column {
+				chosenColumns = append(chosenColumns, column)
+			} else if choice == strconv.Itoa(i) {
+				chosenColumns = append(chosenColumns, column)
+			}
+		}
+	}
+	return chosenColumns
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+func getColumns(csv [][]string) []string {
+	return csv[0]
+}
+
+func convertCSVToArray(filename string) [][]string {
+	filename = "./csv/" + filename
+	file, _ := os.Open(filename)
+	defer file.Close()
+	reader := csv.NewReader(file)
+	rows, _ := reader.ReadAll()
+	return rows
+}
+
+func chooseCsvFiles() []string {
 	csvFiles := getCsvFilesinFolder()
 	println()
 	for index, csvFiles := range csvFiles {
@@ -25,7 +81,6 @@ func chooseCsvFiles() {
 	input := getConsoleText()
 	choices := strings.Fields(input)
 	var chosenCsvFiles []string
-
 	for index, csvFile := range csvFiles {
 		csvTrimmed := strings.TrimSuffix(csvFile, ".csv")
 		for _, choice := range choices {
@@ -38,10 +93,7 @@ func chooseCsvFiles() {
 			}
 		}
 	}
-
-	for _, choice := range chosenCsvFiles {
-		println(choice)
-	}
+	return chosenCsvFiles
 }
 
 func getCsvFilesinFolder() []string {

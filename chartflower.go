@@ -13,8 +13,45 @@ import (
 
 func main() {
 	csvFiles := chooseCsvFiles()
-	columns := chooseColumns(csvFiles)
-	fmt.Println(columns)
+	chosenColumns := chooseColumns(csvFiles)
+	getColumnData(chosenColumns, csvFiles)
+}
+
+func getColumnData(chosenColumns []string, csvFiles []string) [][]string {
+	var columns []string
+	var columnIndexes []string
+	var columnData [][]string
+	for csvIndex, csvFile := range csvFiles {
+		csv := convertCSVToArray(csvFile)
+		for _, row := range csv {
+			for columnIndex, column := range row {
+				for _, chosenColumn := range chosenColumns {
+					if chosenColumn == column {
+						if stringInSlice(chosenColumn, columns) == false {
+							columns = append(columns, chosenColumn)
+							columnIndexes = append(columnIndexes, strconv.Itoa(csvIndex)+" "+strconv.Itoa(columnIndex))
+						}
+					}
+				}
+			}
+		}
+	}
+	for _, columnIndex := range columnIndexes {
+		indexStrings := strings.Fields(columnIndex)
+		csvIndex, _ := strconv.Atoi(indexStrings[0])
+		columnIndex, _ := strconv.Atoi(indexStrings[1])
+		for i, csvFile := range csvFiles {
+			if i == csvIndex {
+				var columnRows []string
+				csv := convertCSVToArray(csvFile)
+				for _, row := range csv {
+					columnRows = append(columnRows, row[columnIndex])
+				}
+				columnData = append(columnData, columnRows)
+			}
+		}
+	}
+	return columnData
 }
 
 func chooseColumns(csvFiles []string) []string {
@@ -48,8 +85,8 @@ func getAllColumns(csvFiles []string) []string {
 	var allColumns []string
 	for _, csvFile := range csvFiles {
 		csv := convertCSVToArray(csvFile)
-		columns := getColumns(csv)
-		for _, column := range columns {
+		columnTitles := csv[0]
+		for _, column := range columnTitles {
 			if stringInSlice(column, allColumns) == false {
 				allColumns = append(allColumns, column)
 			}
@@ -65,10 +102,6 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
-}
-
-func getColumns(csv [][]string) []string {
-	return csv[0]
 }
 
 func convertCSVToArray(filename string) [][]string {

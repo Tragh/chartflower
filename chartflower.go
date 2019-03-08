@@ -18,16 +18,7 @@ func main() {
 }
 
 func chooseColumns(csvFiles []string) []string {
-	var allColumns []string
-	for _, csvFile := range csvFiles {
-		csv := convertCSVToArray(csvFile)
-		columns := getColumns(csv)
-		for _, column := range columns {
-			if stringInSlice(column, allColumns) == false {
-				allColumns = append(allColumns, column)
-			}
-		}
-	}
+	allColumns := getAllColumns(csvFiles)
 	println()
 	for i, column := range allColumns {
 		fmt.Printf("%v. %v\n", i, column)
@@ -35,6 +26,11 @@ func chooseColumns(csvFiles []string) []string {
 	print("\nChoose columns:")
 	input := getConsoleText()
 	choices := strings.Fields(input)
+	chosenColumns := getChosenColumns(choices, allColumns)
+	return chosenColumns
+}
+
+func getChosenColumns(choices []string, allColumns []string) []string {
 	var chosenColumns []string
 	for i, column := range allColumns {
 		for _, choice := range choices {
@@ -46,6 +42,20 @@ func chooseColumns(csvFiles []string) []string {
 		}
 	}
 	return chosenColumns
+}
+
+func getAllColumns(csvFiles []string) []string {
+	var allColumns []string
+	for _, csvFile := range csvFiles {
+		csv := convertCSVToArray(csvFile)
+		columns := getColumns(csv)
+		for _, column := range columns {
+			if stringInSlice(column, allColumns) == false {
+				allColumns = append(allColumns, column)
+			}
+		}
+	}
+	return allColumns
 }
 
 func stringInSlice(a string, list []string) bool {

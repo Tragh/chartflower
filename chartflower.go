@@ -14,7 +14,27 @@ import (
 func main() {
 	csvFiles := chooseCsvFiles()
 	chosenColumns := chooseColumns(csvFiles)
-	getColumnData(chosenColumns, csvFiles)
+	columnData := getColumnData(chosenColumns, csvFiles)
+	parseColumnData(columnData)
+}
+
+func parseColumnData(columnData [][]string) {
+	var data []string
+	rows := columnData[0]
+	rowsLength := len(rows)
+	fmt.Println(rowsLength)
+	for i := 0; i < rowsLength; i++ {
+		for columnIndex := range columnData {
+			if columnIndex == 0 {
+				string := "\n" + columnData[columnIndex][i] + ","
+				data = append(data, string)
+			} else {
+				string := columnData[columnIndex][i] + ","
+				data = append(data, string)
+			}
+		}
+	}
+	fmt.Println(data)
 }
 
 func getColumnData(chosenColumns []string, csvFiles []string) [][]string {

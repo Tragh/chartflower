@@ -22,11 +22,13 @@ func parseColumnData(columnData [][]string) {
 	var data []string
 	rows := columnData[0]
 	rowsLength := len(rows)
-	fmt.Println(rowsLength)
 	for i := 0; i < rowsLength; i++ {
 		for columnIndex := range columnData {
 			if columnIndex == 0 {
 				string := "\n" + columnData[columnIndex][i] + ","
+				data = append(data, string)
+			} else if columnIndex == len(columnData)-1 {
+				string := columnData[columnIndex][i]
 				data = append(data, string)
 			} else {
 				string := columnData[columnIndex][i] + ","

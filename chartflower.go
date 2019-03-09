@@ -15,10 +15,10 @@ func main() {
 	csvFiles := chooseCsvFiles()
 	chosenColumns := chooseColumns(csvFiles)
 	columnData := getColumnData(chosenColumns, csvFiles)
-	parseColumnData(columnData)
+	makeCsv(columnData)
 }
 
-func parseColumnData(columnData [][]string) {
+func makeCsv(columnData [][]string) {
 	var data []string
 	rows := columnData[0]
 	rowsLength := len(rows)
@@ -36,7 +36,10 @@ func parseColumnData(columnData [][]string) {
 			}
 		}
 	}
-	fmt.Println(data)
+	joined := strings.Join(data, "")
+	joined = strings.TrimPrefix(joined, "\n")
+	ioutil.WriteFile("temp.csv", []byte(joined), 0644)
+
 }
 
 func getColumnData(chosenColumns []string, csvFiles []string) [][]string {

@@ -20,11 +20,18 @@ func main() {
 
 	csvFiles := chooseCsvFiles()
 	database := getDatabase()
-	createJoinedTable(database, csvFiles)
+	table := createTable(database, "fruits.csv")
+	// createJoinedTable(database, csvFiles)
+	print(csvFiles, database, table)
 }
 
-func createJoinedTable(database *sql.DB, csvFiles []string) {
-
+func createJoinedTable(database *sql.DB, filenames []string) {
+	var tables []*table
+	for _, filename := range filenames {
+		table := createTable(database, filename)
+		tables = append(tables, table)
+	}
+	fmt.Println(tables)
 }
 
 func createTable(database *sql.DB, filename string) *table {
@@ -32,11 +39,13 @@ func createTable(database *sql.DB, filename string) *table {
 	table.database = database
 	table.sqlTableName = getRandomName()
 
-	file := openFile(filename)
+	csvFilename := "./csv/" + filename
+	file, _ := os.Open(csvFilename)
+	defer file.Close()
 	reader := csv.NewReader(file)
-	table.csvcolumnNames, _ = reader.Read()
+	table.csvColumnNames, _ = reader.Read()
 	table.sqlColumnNames = []string{}
-	for i := range table.csvcolumnNames {
+	for i := range table.csvColumnNames {
 		table.sqlColumnNames = append(table.sqlColumnNames, table.sqlTableName+"_"+strconv.Itoa(i))
 	}
 	table.numberOfColumns = len(table.sqlColumnNames)
@@ -85,12 +94,6 @@ func getCommaSeparatedString(value string, numberOfColumns int) string {
 	return commaSeparatedString
 }
 
-func openFile(filename string) *os.File {
-	file, _ := os.Open(filename)
-	defer file.Close()
-	return file
-}
-
 func getRandomName() string {
 	random := make([]byte, 16)
 	rand.Read(random)
@@ -104,7 +107,7 @@ func getRandomName() string {
 type table struct {
 	database        *sql.DB
 	sqlTableName    string
-	csvcolumnNames  []string
+	csvColumnNames  []string
 	sqlColumnNames  []string
 	numberOfColumns int
 }

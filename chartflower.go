@@ -65,16 +65,14 @@ func createJoinedTable(database *sql.DB, filenames []string) *table {
 }
 
 func createTable(tableName string, database *sql.DB, filename string) *table {
-
-	if strings.Contains(tableName, " ") {
-		fmt.Println("Please remove spaces in .csv filename")
-		os.Exit(0)
-	}
-
 	table := new(table)
 	table.database = database
-	table.sqlTableName = tableName
-
+	if strings.Contains(tableName, " ") {
+		spacesRemoved := strings.ReplaceAll(tableName, " ", "")
+		table.sqlTableName = spacesRemoved
+	} else {
+		table.sqlTableName = tableName
+	}
 	csvFilename := "./csv/" + filename
 	file, _ := os.Open(csvFilename)
 	defer file.Close()

@@ -20,9 +20,8 @@ func main() {
 
 	csvFiles := chooseCsvFiles()
 	database := getDatabase()
-	table := createTable(database, "fruits.csv")
-	// createJoinedTable(database, csvFiles)
-	print(csvFiles, database, table)
+	createJoinedTable(database, csvFiles)
+	print(csvFiles, database)
 }
 
 func createJoinedTable(database *sql.DB, filenames []string) {
@@ -31,7 +30,7 @@ func createJoinedTable(database *sql.DB, filenames []string) {
 		table := createTable(database, filename)
 		tables = append(tables, table)
 	}
-	fmt.Println(tables)
+	fmt.Print(tables)
 }
 
 func createTable(database *sql.DB, filename string) *table {
@@ -101,7 +100,7 @@ func getRandomName() string {
 	for _, n := range random {
 		name += fmt.Sprintf("%x", n)
 	}
-	return name
+	return "T" + name
 }
 
 type table struct {

@@ -85,20 +85,25 @@ func createJoinedTable(database *sql.DB, filenames []string) *table {
 	joinedTable.numberOfColumns = len(joinedTable.sqlColumnNames)
 
 	statementString := "CREATE TABLE IF NOT EXISTS " + joinedTable.sqlTableName + " AS SELECT * FROM "
-	for i, table := range tables {
-		if i < len(tables)-1 {
-			statementString = statementString + table.sqlTableName + " JOIN "
-		} else {
-			statementString = statementString + table.sqlTableName
+	if len(tables) < 3 {
+		for i, table := range tables {
+			if i < len(tables)-1 {
+				statementString = statementString + table.sqlTableName + " JOIN "
+			} else {
+				statementString = statementString + table.sqlTableName
+			}
 		}
-	}
-	statementString = statementString + " ON "
-	for i, table := range tables {
-		if i < len(tables)-1 {
-			statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0] + " = "
-		} else {
-			statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0]
+		statementString = statementString + " ON "
+		for i, table := range tables {
+			if i < len(tables)-1 {
+				statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0] + " = "
+			} else {
+				statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0]
+			}
 		}
+	} else {
+		fmt.Println("No support for 3+ tables yet")
+		os.Exit(0)
 	}
 	statement, error := joinedTable.database.Prepare(statementString)
 	if error != nil {

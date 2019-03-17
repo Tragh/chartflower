@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/rand"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
@@ -25,12 +26,39 @@ func createJoinedTable(database *sql.DB, csvFiles []string) {
 
 }
 
-func createTable() {
+func createTable(database *sql.DB, filename string) {
 	table := new(table)
+	table.database = database
+	table.sqlTableName = getRandomName()
+
+	file := openFile(filename)
+	reader := csv.NewReader(file)
+	table.csvcolumnNames, _ = reader.Read()
+	table.sqlColumnNames = []string{}
+	for i := range table.csvcolumnNames {
+		table.sqlColumnNames = append(table.sqlColumnNames, table.sqlTableName+"_"+strconv.Itoa(i))
+	}
+	table.numberOfColumns = len(table.sqlColumnNames)
+}
+
+func openFile(filename string) *os.File {
+	file, _ := os.Open(filename)
+	defer file.Close()
+	return file
+}
+
+func getRandomName() string {
+	random := make([]byte, 16)
+	rand.Read(random)
+	name := ""
+	for _, n := range random {
+		name += fmt.Sprintf("%x", n)
+	}
+	return name
 }
 
 type table struct {
-	db              *sql.DB
+	database        *sql.DB
 	sqlTableName    string
 	csvcolumnNames  []string
 	sqlColumnNames  []string

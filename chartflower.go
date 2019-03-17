@@ -20,23 +20,100 @@ func main() {
 
 	csvFiles := chooseCsvFiles()
 	database := getDatabase()
-	createJoinedTable(database, csvFiles)
-	print(csvFiles, database)
+	joinedTable := createJoinedTable(database, csvFiles)
+	joinedTable.printTable()
 }
 
-func createJoinedTable(database *sql.DB, filenames []string) {
+func (table table) printTable(columns ...int) {
+	isColumnPrinted := make(map[int]bool)
+	if columns != nil {
+		for _, c := range columns {
+			isColumnPrinted[c] = true
+		}
+	} else {
+		for i := range table.csvColumnNames {
+			isColumnPrinted[i] = true
+		}
+	}
+	fmt.Println("## Column Names ##")
+
+	for i, columnName := range table.csvColumnNames {
+		if isColumnPrinted[i] {
+			fmt.Print(columnName, ", ")
+		}
+	}
+	fmt.Println()
+	fmt.Println("## Rows ##")
+	rows, _ := table.database.Query("SELECT * FROM " + table.sqlTableName)
+	rowData := make([]interface{}, table.numberOfColumns)
+	rowDataPointers := make([]interface{}, table.numberOfColumns)
+
+	for i := range rowData {
+		rowDataPointers[i] = &rowData[i]
+	}
+
+	for rows.Next() {
+		rows.Scan(rowDataPointers...)
+		for i, data := range rowData {
+			if isColumnPrinted[i] {
+				//fmt.Print(fmt.Sprint(data)+", ") //This also works
+				if dataAsString, ok := data.(string); ok {
+					fmt.Print(dataAsString + ", ")
+				} else {
+					fmt.Print(" , ")
+				}
+			}
+		}
+		fmt.Println()
+	}
+	fmt.Println()
+}
+
+func createJoinedTable(database *sql.DB, filenames []string) *table {
 	var tables []*table
 	for _, filename := range filenames {
 		table := createTable(database, filename)
 		tables = append(tables, table)
 	}
-	fmt.Print(tables)
+	joinedTable := new(table)
+	joinedTable.database = database
+	joinedTable.sqlTableName = randomTableName()
+	for _, table := range tables {
+		joinedTable.csvColumnNames = append(table.csvColumnNames)
+		joinedTable.sqlColumnNames = append(table.sqlColumnNames)
+	}
+	joinedTable.numberOfColumns = len(joinedTable.sqlColumnNames)
+
+	statementString := "CREATE TABLE IF NOT EXISTS " + joinedTable.sqlTableName + " AS SELECT * FROM "
+	for i, table := range tables {
+		if i < len(tables)-1 {
+			statementString = statementString + table.sqlTableName + " JOIN "
+		} else {
+			statementString = statementString + table.sqlTableName
+		}
+	}
+	statementString = statementString + " ON "
+	for i, table := range tables {
+		if i < len(tables)-1 {
+			statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0] + " = "
+		} else {
+			statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0]
+		}
+	}
+
+	statement, error := joinedTable.database.Prepare(statementString)
+	if error != nil {
+		fmt.Println(error)
+	}
+	statement.Exec()
+	statement.Close()
+	return joinedTable
 }
 
 func createTable(database *sql.DB, filename string) *table {
 	table := new(table)
 	table.database = database
-	table.sqlTableName = getRandomName()
+	table.sqlTableName = randomTableName()
 
 	csvFilename := "./csv/" + filename
 	file, _ := os.Open(csvFilename)
@@ -93,7 +170,7 @@ func getCommaSeparatedString(value string, numberOfColumns int) string {
 	return commaSeparatedString
 }
 
-func getRandomName() string {
+func randomTableName() string {
 	random := make([]byte, 16)
 	rand.Read(random)
 	name := ""

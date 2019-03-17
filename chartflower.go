@@ -14,32 +14,7 @@ import (
 func main() {
 	csvFiles := chooseCsvFiles()
 	chosenColumns := chooseColumns(csvFiles)
-	columnData := getColumnData(chosenColumns, csvFiles)
-	makeCsv(columnData)
-}
-
-func makeCsv(columnData [][]string) {
-	var data []string
-	rows := columnData[0]
-	rowsLength := len(rows)
-	for i := 0; i < rowsLength; i++ {
-		for columnIndex := range columnData {
-			if columnIndex == 0 {
-				string := "\n" + columnData[columnIndex][i] + ","
-				data = append(data, string)
-			} else if columnIndex == len(columnData)-1 {
-				string := columnData[columnIndex][i]
-				data = append(data, string)
-			} else {
-				string := columnData[columnIndex][i] + ","
-				data = append(data, string)
-			}
-		}
-	}
-	joined := strings.Join(data, "")
-	joined = strings.TrimPrefix(joined, "\n")
-	ioutil.WriteFile("temp.csv", []byte(joined), 0644)
-
+	// columnData := getColumnData(chosenColumns, csvFiles)
 }
 
 func getColumnData(chosenColumns []string, csvFiles []string) [][]string {

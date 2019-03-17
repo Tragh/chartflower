@@ -20,53 +20,21 @@ func main() {
 
 	csvFiles := chooseCsvFiles()
 	database := getDatabase()
-	joinedTable := createJoinedTable(database, csvFiles)
-	joinedTable.printTable()
+	table := getTable(database, csvFiles)
+	table.printTable()
 }
 
-func (table table) printTable(columns ...int) {
-	isColumnPrinted := make(map[int]bool)
-	if columns != nil {
-		for _, c := range columns {
-			isColumnPrinted[c] = true
-		}
+func getTable(database *sql.DB, filenames []string) *table {
+	var table *table
+	if len(filenames) == 1 {
+		table = createTable(database, filenames[0])
+	} else if len(filenames) == 3 {
+		fmt.Println("No support for 3+ tables yet")
+		os.Exit(0)
 	} else {
-		for i := range table.csvColumnNames {
-			isColumnPrinted[i] = true
-		}
+		table = createJoinedTable(database, filenames)
 	}
-	fmt.Println("## Column Names ##")
-
-	for i, columnName := range table.csvColumnNames {
-		if isColumnPrinted[i] {
-			fmt.Print(columnName, ", ")
-		}
-	}
-	fmt.Println()
-	fmt.Println("## Rows ##")
-	rows, _ := table.database.Query("SELECT * FROM " + table.sqlTableName)
-	rowData := make([]interface{}, table.numberOfColumns)
-	rowDataPointers := make([]interface{}, table.numberOfColumns)
-
-	for i := range rowData {
-		rowDataPointers[i] = &rowData[i]
-	}
-
-	for rows.Next() {
-		rows.Scan(rowDataPointers...)
-		for i, data := range rowData {
-			if isColumnPrinted[i] {
-				//fmt.Print(fmt.Sprint(data)+", ") //This also works
-				if dataAsString, ok := data.(string); ok {
-					fmt.Print(dataAsString + ", ")
-				} else {
-					fmt.Print(" , ")
-				}
-			}
-		}
-		fmt.Println()
-	}
-	fmt.Println()
+	return table
 }
 
 func createJoinedTable(database *sql.DB, filenames []string) *table {
@@ -101,9 +69,6 @@ func createJoinedTable(database *sql.DB, filenames []string) *table {
 				statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0]
 			}
 		}
-	} else {
-		fmt.Println("No support for 3+ tables yet")
-		os.Exit(0)
 	}
 	statement, error := joinedTable.database.Prepare(statementString)
 	if error != nil {
@@ -316,4 +281,49 @@ func typeQToQuit(input string) {
 	if input == "q" {
 		os.Exit(0)
 	}
+}
+
+func (table table) printTable(columns ...int) {
+	isColumnPrinted := make(map[int]bool)
+	if columns != nil {
+		for _, c := range columns {
+			isColumnPrinted[c] = true
+		}
+	} else {
+		for i := range table.csvColumnNames {
+			isColumnPrinted[i] = true
+		}
+	}
+	fmt.Println("## Column Names ##")
+
+	for i, columnName := range table.csvColumnNames {
+		if isColumnPrinted[i] {
+			fmt.Print(columnName, ", ")
+		}
+	}
+	fmt.Println()
+	fmt.Println("## Rows ##")
+	rows, _ := table.database.Query("SELECT * FROM " + table.sqlTableName)
+	rowData := make([]interface{}, table.numberOfColumns)
+	rowDataPointers := make([]interface{}, table.numberOfColumns)
+
+	for i := range rowData {
+		rowDataPointers[i] = &rowData[i]
+	}
+
+	for rows.Next() {
+		rows.Scan(rowDataPointers...)
+		for i, data := range rowData {
+			if isColumnPrinted[i] {
+				//fmt.Print(fmt.Sprint(data)+", ") //This also works
+				if dataAsString, ok := data.(string); ok {
+					fmt.Print(dataAsString + ", ")
+				} else {
+					fmt.Print(" , ")
+				}
+			}
+		}
+		fmt.Println()
+	}
+	fmt.Println()
 }

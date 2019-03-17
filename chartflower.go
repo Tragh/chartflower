@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"runtime"
@@ -26,7 +27,7 @@ func createJoinedTable(database *sql.DB, csvFiles []string) {
 
 }
 
-func createTable(database *sql.DB, filename string) {
+func createTable(database *sql.DB, filename string) *table {
 	table := new(table)
 	table.database = database
 	table.sqlTableName = getRandomName()
@@ -39,6 +40,49 @@ func createTable(database *sql.DB, filename string) {
 		table.sqlColumnNames = append(table.sqlColumnNames, table.sqlTableName+"_"+strconv.Itoa(i))
 	}
 	table.numberOfColumns = len(table.sqlColumnNames)
+
+	tableLayout := ""
+	for i := 0; i < table.numberOfColumns-1; i++ {
+		tableLayout += table.sqlColumnNames[i] + " TEXT, "
+	}
+	tableLayout += table.sqlColumnNames[table.numberOfColumns-1] + " TEXT"
+	statement, _ := table.database.Prepare("CREATE TABLE IF NOT EXISTS " + table.sqlTableName + " (" + tableLayout + ")")
+	statement.Exec()
+	statement.Close()
+	statement, _ = table.database.Prepare("INSERT INTO " + table.sqlTableName + " VALUES (" + getCommaSeparatedString("?", table.numberOfColumns) + ")")
+	for {
+		row, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+		statement.Exec(convertStringsToInterfaces(row)...)
+	}
+	statement.Close()
+
+	return table
+}
+
+func convertStringsToInterfaces(strings []string) []interface{} {
+	interfaces := make([]interface{}, len(strings))
+	for i, value := range strings {
+		interfaces[i] = value
+	}
+	return interfaces
+}
+
+func getCommaSeparatedString(value string, numberOfColumns int) string {
+	commaSeparatedString := ""
+	if numberOfColumns <= 0 {
+		return commaSeparatedString
+	}
+	for i := 0; i < numberOfColumns-1; i++ {
+		commaSeparatedString += value + ","
+	}
+	commaSeparatedString += value
+	return commaSeparatedString
 }
 
 func openFile(filename string) *os.File {

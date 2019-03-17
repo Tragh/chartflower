@@ -79,8 +79,8 @@ func createJoinedTable(database *sql.DB, filenames []string) *table {
 	joinedTable.database = database
 	joinedTable.sqlTableName = randomTableName()
 	for _, table := range tables {
-		joinedTable.csvColumnNames = append(table.csvColumnNames)
-		joinedTable.sqlColumnNames = append(table.sqlColumnNames)
+		joinedTable.csvColumnNames = append(joinedTable.csvColumnNames, table.csvColumnNames...)
+		joinedTable.sqlColumnNames = append(joinedTable.sqlColumnNames, table.sqlColumnNames...)
 	}
 	joinedTable.numberOfColumns = len(joinedTable.sqlColumnNames)
 
@@ -100,7 +100,6 @@ func createJoinedTable(database *sql.DB, filenames []string) *table {
 			statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0]
 		}
 	}
-
 	statement, error := joinedTable.database.Prepare(statementString)
 	if error != nil {
 		fmt.Println(error)

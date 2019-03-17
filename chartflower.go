@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"io/ioutil"
@@ -9,49 +10,36 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
+
 	csvFiles := chooseCsvFiles()
-	chosenColumns := chooseColumns(csvFiles)
-	// columnData := getColumnData(chosenColumns, csvFiles)
+	database := getDatabase()
+	createJoinedTable(database, csvFiles)
 }
 
-func getColumnData(chosenColumns []string, csvFiles []string) [][]string {
-	var columns []string
-	var columnIndexes []string
-	var columnData [][]string
-	for csvIndex, csvFile := range csvFiles {
-		csv := convertCSVToArray(csvFile)
-		for _, row := range csv {
-			for columnIndex, column := range row {
-				for _, chosenColumn := range chosenColumns {
-					if chosenColumn == column {
-						if stringInSlice(chosenColumn, columns) == false {
-							columns = append(columns, chosenColumn)
-							columnIndexes = append(columnIndexes, strconv.Itoa(csvIndex)+" "+strconv.Itoa(columnIndex))
-						}
-					}
-				}
-			}
-		}
-	}
-	for _, columnIndex := range columnIndexes {
-		indexStrings := strings.Fields(columnIndex)
-		csvIndex, _ := strconv.Atoi(indexStrings[0])
-		columnIndex, _ := strconv.Atoi(indexStrings[1])
-		for i, csvFile := range csvFiles {
-			if i == csvIndex {
-				var columnRows []string
-				csv := convertCSVToArray(csvFile)
-				for _, row := range csv {
-					columnRows = append(columnRows, row[columnIndex])
-				}
-				columnData = append(columnData, columnRows)
-			}
-		}
-	}
-	return columnData
+func createJoinedTable(database *sql.DB, csvFiles []string) {
+
+}
+
+func createTable() {
+	table := new(table)
+}
+
+type table struct {
+	db              *sql.DB
+	sqlTableName    string
+	csvcolumnNames  []string
+	sqlColumnNames  []string
+	numberOfColumns int
+}
+
+func getDatabase() *sql.DB {
+	database, _ := sql.Open("sqlite3", ":memory:")
+	return database
 }
 
 func chooseColumns(csvFiles []string) []string {

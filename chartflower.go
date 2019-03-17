@@ -27,7 +27,8 @@ func main() {
 func getTable(database *sql.DB, filenames []string) *table {
 	var table *table
 	if len(filenames) == 1 {
-		table = createTable(database, filenames[0])
+		tableName := strings.TrimSuffix(filenames[0], ".csv")
+		table = createTable(tableName, database, filenames[0])
 	} else if len(filenames) == 3 {
 		fmt.Println("No support for 3+ tables yet")
 		os.Exit(0)
@@ -40,36 +41,20 @@ func getTable(database *sql.DB, filenames []string) *table {
 func createJoinedTable(database *sql.DB, filenames []string) *table {
 	var tables []*table
 	for _, filename := range filenames {
-		table := createTable(database, filename)
+		tableName := strings.TrimSuffix(filename, ".csv")
+		table := createTable(tableName, database, filename)
 		tables = append(tables, table)
 	}
 	joinedTable := new(table)
 	joinedTable.database = database
-	joinedTable.sqlTableName = randomTableName()
+	joinedTable.sqlTableName = "Joined"
 	for _, table := range tables {
 		joinedTable.csvColumnNames = append(joinedTable.csvColumnNames, table.csvColumnNames...)
 		joinedTable.sqlColumnNames = append(joinedTable.sqlColumnNames, table.sqlColumnNames...)
 	}
 	joinedTable.numberOfColumns = len(joinedTable.sqlColumnNames)
 
-	statementString := "CREATE TABLE IF NOT EXISTS " + joinedTable.sqlTableName + " AS SELECT * FROM "
-	if len(tables) < 3 {
-		for i, table := range tables {
-			if i < len(tables)-1 {
-				statementString = statementString + table.sqlTableName + " JOIN "
-			} else {
-				statementString = statementString + table.sqlTableName
-			}
-		}
-		statementString = statementString + " ON "
-		for i, table := range tables {
-			if i < len(tables)-1 {
-				statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0] + " = "
-			} else {
-				statementString = statementString + table.sqlTableName + "." + table.sqlColumnNames[0]
-			}
-		}
-	}
+	statementString := "CREATE TABLE IF NOT EXISTS " + joinedTable.sqlTableName + " AS SELECT * FROM " + tables[0].sqlTableName + " JOIN " + tables[1].sqlTableName + " ON " + tables[0].sqlTableName + "." + tables[0].sqlColumnNames[0] + " = " + tables[1].sqlTableName + "." + tables[1].sqlColumnNames[0]
 	statement, error := joinedTable.database.Prepare(statementString)
 	if error != nil {
 		fmt.Println(error)
@@ -79,10 +64,16 @@ func createJoinedTable(database *sql.DB, filenames []string) *table {
 	return joinedTable
 }
 
-func createTable(database *sql.DB, filename string) *table {
+func createTable(tableName string, database *sql.DB, filename string) *table {
+
+	if strings.Contains(tableName, " ") {
+		fmt.Println("Please remove spaces in .csv filename")
+		os.Exit(0)
+	}
+
 	table := new(table)
 	table.database = database
-	table.sqlTableName = randomTableName()
+	table.sqlTableName = tableName
 
 	csvFilename := "./csv/" + filename
 	file, _ := os.Open(csvFilename)
@@ -158,7 +149,7 @@ type table struct {
 }
 
 func getDatabase() *sql.DB {
-	database, _ := sql.Open("sqlite3", ":memory:")
+	database, _ := sql.Open("sqlite3", "database.db")
 	return database
 }
 

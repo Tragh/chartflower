@@ -20,6 +20,18 @@ func main() {
 	csvFiles := chooseCsvFiles()
 	database := getDatabase()
 	table := getTable(database, csvFiles)
+	chooseColumns(table)
+}
+
+func chooseColumns(table *table) {
+	println()
+	for i, columnName := range table.csvColumnNames {
+		fmt.Printf("%v. %v\n", i, columnName)
+	}
+	print("\nChoose columns:")
+	input := getConsoleText()
+	choices := strings.Fields(input)
+	fmt.Println(choices)
 }
 
 func getTable(database *sql.DB, filenames []string) *table {
@@ -132,47 +144,6 @@ type table struct {
 func getDatabase() *sql.DB {
 	database, _ := sql.Open("sqlite3", ":memory:")
 	return database
-}
-
-func chooseColumns(csvFiles []string) []string {
-	allColumns := getAllColumns(csvFiles)
-	println()
-	for i, column := range allColumns {
-		fmt.Printf("%v. %v\n", i, column)
-	}
-	print("\nChoose columns:")
-	input := getConsoleText()
-	choices := strings.Fields(input)
-	chosenColumns := getChosenColumns(choices, allColumns)
-	return chosenColumns
-}
-
-func getChosenColumns(choices []string, allColumns []string) []string {
-	var chosenColumns []string
-	for i, column := range allColumns {
-		for _, choice := range choices {
-			if choice == column {
-				chosenColumns = append(chosenColumns, column)
-			} else if choice == strconv.Itoa(i) {
-				chosenColumns = append(chosenColumns, column)
-			}
-		}
-	}
-	return chosenColumns
-}
-
-func getAllColumns(csvFiles []string) []string {
-	var allColumns []string
-	for _, csvFile := range csvFiles {
-		csv := convertCSVToArray(csvFile)
-		columnTitles := csv[0]
-		for _, column := range columnTitles {
-			if stringInSlice(column, allColumns) == false {
-				allColumns = append(allColumns, column)
-			}
-		}
-	}
-	return allColumns
 }
 
 func stringInSlice(a string, list []string) bool {

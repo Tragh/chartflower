@@ -14,9 +14,20 @@ func makeChart() {
 	selectedChart := chooseChartType()
 	for i, chartType := range chartTypes() {
 		if selectedChart == strconv.Itoa(i) {
-			fmt.Println(chartType)
+			switch chartType {
+			case "bar":
+				barChart()
+			default:
+				fmt.Println("No case for", chartType, "chart")
+			}
 		}
 	}
+}
+
+func barChart() {
+	csvFiles := chooseCsvFiles()
+	table := makeSQLTable(csvFiles)
+	chooseColumns(table)
 }
 
 func chooseChartType() string {

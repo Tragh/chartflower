@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"crypto/rand"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
@@ -21,7 +20,6 @@ func main() {
 	csvFiles := chooseCsvFiles()
 	database := getDatabase()
 	table := getTable(database, csvFiles)
-	table.printTable()
 }
 
 func getTable(database *sql.DB, filenames []string) *table {
@@ -67,12 +65,7 @@ func createJoinedTable(database *sql.DB, filenames []string) *table {
 func createTable(tableName string, database *sql.DB, filename string) *table {
 	table := new(table)
 	table.database = database
-	if strings.Contains(tableName, " ") {
-		spacesRemoved := strings.ReplaceAll(tableName, " ", "")
-		table.sqlTableName = spacesRemoved
-	} else {
-		table.sqlTableName = tableName
-	}
+	table.sqlTableName = tableName
 	csvFilename := "./csv/" + filename
 	file, _ := os.Open(csvFilename)
 	defer file.Close()
@@ -128,16 +121,6 @@ func getCommaSeparatedString(value string, numberOfColumns int) string {
 	return commaSeparatedString
 }
 
-func randomTableName() string {
-	random := make([]byte, 16)
-	rand.Read(random)
-	name := ""
-	for _, n := range random {
-		name += fmt.Sprintf("%x", n)
-	}
-	return "T" + name
-}
-
 type table struct {
 	database        *sql.DB
 	sqlTableName    string
@@ -147,7 +130,7 @@ type table struct {
 }
 
 func getDatabase() *sql.DB {
-	database, _ := sql.Open("sqlite3", "database.db")
+	database, _ := sql.Open("sqlite3", ":memory:")
 	return database
 }
 
@@ -221,17 +204,9 @@ func chooseCsvFiles() []string {
 	input := getConsoleText()
 	choices := strings.Fields(input)
 	var chosenCsvFiles []string
-	for index, csvFile := range csvFiles {
-		csvTrimmed := strings.TrimSuffix(csvFile, ".csv")
-		for _, choice := range choices {
-			if choice == csvFile {
-				chosenCsvFiles = append(chosenCsvFiles, csvFile)
-			} else if choice == csvTrimmed {
-				chosenCsvFiles = append(chosenCsvFiles, csvFile)
-			} else if choice == strconv.Itoa(index) {
-				chosenCsvFiles = append(chosenCsvFiles, csvFile)
-			}
-		}
+	for _, choice := range choices {
+		choiceIndex, _ := strconv.Atoi(choice)
+		chosenCsvFiles = append(chosenCsvFiles, csvFiles[choiceIndex])
 	}
 	return chosenCsvFiles
 }

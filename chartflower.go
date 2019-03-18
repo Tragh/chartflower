@@ -5,7 +5,10 @@ import (
 )
 
 func main() {
-	csvFiles := chooseCsvFiles()
-	table := makeSQLTable(csvFiles)
-	chooseColumns(table)
+
+	makeChart()
+
+	// csvFiles := chooseCsvFiles()
+	// table := makeSQLTable(csvFiles)
+	// chooseColumns(table)
 }

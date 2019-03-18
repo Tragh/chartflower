@@ -7,8 +7,4 @@ import (
 func main() {
 
 	makeChart()
-
-	// csvFiles := chooseCsvFiles()
-	// table := makeSQLTable(csvFiles)
-	// chooseColumns(table)
 }

@@ -13,6 +13,12 @@ import (
 	"strings"
 )
 
+func getData() *table {
+	csvFiles := chooseCsvFiles()
+	table := makeSQLTable(csvFiles)
+	return table
+}
+
 func chooseColumns(table *table) {
 	println()
 	for i, columnName := range table.csvColumnNames {

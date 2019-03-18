@@ -25,9 +25,8 @@ func makeChart() {
 }
 
 func barChart() {
-	csvFiles := chooseCsvFiles()
-	table := makeSQLTable(csvFiles)
-	chooseColumns(table)
+	data := getData()
+	chooseColumns(data)
 }
 
 func chooseChartType() string {

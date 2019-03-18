@@ -26,7 +26,10 @@ func makeChart() {
 
 func barChart() {
 	data := getData()
-	chooseColumns(data)
+	// Choose column
+	// SQL return [item names, counts of items]
+	// Make title (# of [column name]s)
+	// Put [title, item names, counts of items] into new html file
 }
 
 func chooseChartType() string {

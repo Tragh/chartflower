@@ -6,5 +6,10 @@ import (
 
 func main() {
 
-	makeChart()
+	// Convert csv to sql
+	chooseCSV()
+}
+
+func convertCSVtoSQL() {
+
 }

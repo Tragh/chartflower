@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"runtime"
@@ -9,10 +10,12 @@ import (
 )
 
 func chooseCSV() {
-
+	for i, filename := range getCSVFilenames() {
+		fmt.Println(i, strings.TrimSuffix(filename, ".csv"))
+	}
 }
 
-func getCSVFilesinFolder() []string {
+func getCSVFilenames() []string {
 	var csvFiles []string
 	filesInFolder, _ := ioutil.ReadDir("./csv/")
 	for _, fileInFolder := range filesInFolder {

@@ -25,12 +25,46 @@ func makeChart(data [][]string) string {
 }
 
 func barChart(data [][]string) string {
+	labelsIndex, labelsString := chooseLabelsColumn(data)
+	valuesLabel, valuesString := chooseValuesColumn(labelsIndex, data)
+	return barChartTemplate(labelsString, valuesString, valuesLabel)
+}
+
+func chooseValuesColumn(labelsIndex int, data [][]string) (string, string) {
+	columnNames := getColumnNames(data)
+	firstRow := getFirstRow(data)
+	var valuesIndex int
+	var values []string
+
+	fmt.Println()
+	for i, column := range columnNames {
+		if i != labelsIndex {
+			fmt.Println(strconv.Itoa(i) + ". " + column + " eg. " + firstRow[i])
+		}
+	}
+
+	choice := getChoice("Choose values")
+
+	for i, column := range columnNames {
+		number := strconv.Itoa(i)
+		if choice == column {
+			valuesIndex = i
+			values = getColumnData(i, data)
+		} else if choice == number {
+			valuesIndex = i
+			values = getColumnData(i, data)
+		}
+	}
+	valuesLabel := columnNames[valuesIndex]
+	valuesString := strings.Join(values, ",")
+	return valuesLabel, valuesString
+}
+
+func chooseLabelsColumn(data [][]string) (int, string) {
 	columnNames := getColumnNames(data)
 	firstRow := getFirstRow(data)
 	var labelsIndex int
-	var valuesIndex int
 	var labels []string
-	var values []string
 
 	fmt.Println()
 	for i, column := range columnNames {
@@ -50,31 +84,8 @@ func barChart(data [][]string) string {
 		}
 	}
 
-	fmt.Println()
-	for i, column := range columnNames {
-		if i != labelsIndex {
-			fmt.Println(strconv.Itoa(i) + ". " + column + " eg. " + firstRow[i])
-		}
-	}
-
-	choice = getChoice("Choose values")
-
-	for i, column := range columnNames {
-		number := strconv.Itoa(i)
-		if choice == column {
-			valuesIndex = i
-			values = getColumnData(i, data)
-		} else if choice == number {
-			valuesIndex = i
-			values = getColumnData(i, data)
-		}
-	}
-
-	valuesLabel := columnNames[valuesIndex]
 	labelsString := strings.Join(labels, ",")
-	valuesString := strings.Join(values, ",")
-
-	return barChartTemplate(labelsString, valuesString, valuesLabel)
+	return labelsIndex, labelsString
 }
 
 func getColumnData(column int, data [][]string) []string {

@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func charts() [1]string {
-	charts := [1]string{"bar"}
+func charts() [2]string {
+	charts := [2]string{"bar", "pie"}
 	return charts
 }
 
@@ -17,11 +17,19 @@ func makeChart(data [][]string) string {
 	switch selectChart() {
 	case "bar":
 		chart = barChart(data)
+	case "pie":
+		chart = pieChart(data)
 	default:
 		fmt.Println("No case for", chart)
 	}
 
 	return chart
+}
+
+func pieChart(data [][]string) string {
+	labelsIndex, labelsString := chooseLabelsColumn(data)
+	valuesLabel, valuesString := chooseValuesColumn(labelsIndex, data)
+	return pieChartTemplate(labelsString, valuesString, valuesLabel)
 }
 
 func barChart(data [][]string) string {

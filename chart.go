@@ -21,6 +21,31 @@ func makeChart(data [][]string) string {
 }
 
 func barChart(data [][]string) string {
+	columns := getColumns(data)
+	firstRow := getFirstRow(data)
+
+	fmt.Println(columns)
+	fmt.Println(firstRow)
 
 	return "bar chart here"
+}
+
+func getFirstRow(data [][]string) []string {
+	var columns []string
+	for i, row := range data {
+		if i == 1 {
+			columns = row
+		}
+	}
+	return columns
+}
+
+func getColumns(data [][]string) []string {
+	var columns []string
+	for i, row := range data {
+		if i == 0 {
+			columns = row
+		}
+	}
+	return columns
 }

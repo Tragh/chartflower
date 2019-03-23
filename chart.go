@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 func charts() [1]string {
 	charts := [1]string{"bar"}
@@ -23,11 +26,38 @@ func makeChart(data [][]string) string {
 func barChart(data [][]string) string {
 	columns := getColumns(data)
 	firstRow := getFirstRow(data)
+	var labels []string
 
-	fmt.Println(columns)
-	fmt.Println(firstRow)
+	fmt.Println()
+	for i, column := range columns {
+		fmt.Println(strconv.Itoa(i) + ". " + column + " eg. " + firstRow[i])
+	}
+
+	choice := getChoice("Choose label column")
+
+	for i, column := range columns {
+		number := strconv.Itoa(i)
+		if choice == column {
+			labels = getColumnData(i, data)
+		} else if choice == number {
+			labels = getColumnData(i, data)
+		}
+	}
+
+	fmt.Println(labels)
+	// fmt.Println(firstRow)
 
 	return "bar chart here"
+}
+
+func getColumnData(column int, data [][]string) []string {
+	var columnData []string
+	for i, data := range data {
+		if i != 0 {
+			columnData = append(columnData, data[column])
+		}
+	}
+	return columnData
 }
 
 func getFirstRow(data [][]string) []string {

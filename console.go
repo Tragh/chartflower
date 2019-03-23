@@ -11,26 +11,47 @@ import (
 	"strings"
 )
 
+func selectChart() string {
+	var selectedChart string
+
+	fmt.Println()
+	for i, chart := range charts() {
+		fmt.Println(strconv.Itoa(i) + ". " + chart)
+	}
+
+	choice := getChoice("Choose chart")
+
+	for i, chart := range charts() {
+		number := strconv.Itoa(i)
+		if choice == chart {
+			selectedChart = chart
+		} else if choice == number {
+			selectedChart = chart
+		}
+	}
+
+	return selectedChart
+}
+
 func csvToArray() [][]string {
 	var selectedCSV string
 
-	csvFilenames := getCSVFilenames()
-	for i, csvFilename := range csvFilenames {
+	fmt.Println()
+	for i, csvFilename := range getCSVFilenames() {
 		csvTrimmed := strings.TrimSuffix(csvFilename, ".csv")
 		fmt.Println(strconv.Itoa(i) + ". " + csvTrimmed)
 	}
 
-	fmt.Print("\nChoose a CSV: ")
-	choice := getConsoleText()
+	choice := getChoice("Choose csv")
 
-	for i, csvFilename := range csvFilenames {
-		csvTrimmed := strings.TrimSuffix(csvFilename, ".csv")
-
+	for i, csvFilename := range getCSVFilenames() {
+		csvFilenameWithoutSuffix := strings.TrimSuffix(csvFilename, ".csv")
+		number := strconv.Itoa(i)
 		if choice == csvFilename {
 			selectedCSV = csvFilename
-		} else if choice == csvTrimmed {
+		} else if choice == csvFilenameWithoutSuffix {
 			selectedCSV = csvFilename
-		} else if choice == strconv.Itoa(i) {
+		} else if choice == number {
 			selectedCSV = csvFilename
 		}
 	}
@@ -56,6 +77,12 @@ func getCSVFilenames() []string {
 		}
 	}
 	return csvFiles
+}
+
+func getChoice(prompt string) string {
+	fmt.Printf("%v: ", prompt)
+	choice := getConsoleText()
+	return choice
 }
 
 func getConsoleText() string {

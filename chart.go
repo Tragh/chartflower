@@ -25,7 +25,7 @@ func makeChart(data [][]string) string {
 }
 
 func barChart(data [][]string) string {
-	columns := getColumns(data)
+	columnNames := getColumnNames(data)
 	firstRow := getFirstRow(data)
 	var labelsIndex int
 	var valuesIndex int
@@ -33,13 +33,13 @@ func barChart(data [][]string) string {
 	var values []string
 
 	fmt.Println()
-	for i, column := range columns {
+	for i, column := range columnNames {
 		fmt.Println(strconv.Itoa(i) + ". " + column + " eg. " + firstRow[i])
 	}
 
 	choice := getChoice("Choose label column")
 
-	for i, column := range columns {
+	for i, column := range columnNames {
 		number := strconv.Itoa(i)
 		if choice == column {
 			labelsIndex = i
@@ -51,7 +51,7 @@ func barChart(data [][]string) string {
 	}
 
 	fmt.Println()
-	for i, column := range columns {
+	for i, column := range columnNames {
 		if i != labelsIndex {
 			fmt.Println(strconv.Itoa(i) + ". " + column + " eg. " + firstRow[i])
 		}
@@ -59,7 +59,7 @@ func barChart(data [][]string) string {
 
 	choice = getChoice("Choose values")
 
-	for i, column := range columns {
+	for i, column := range columnNames {
 		number := strconv.Itoa(i)
 		if choice == column {
 			valuesIndex = i
@@ -70,7 +70,7 @@ func barChart(data [][]string) string {
 		}
 	}
 
-	valuesLabel := columns[valuesIndex]
+	valuesLabel := columnNames[valuesIndex]
 	labelsString := strings.Join(labels, ",")
 	valuesString := strings.Join(values, ",")
 
@@ -97,7 +97,7 @@ func getFirstRow(data [][]string) []string {
 	return columns
 }
 
-func getColumns(data [][]string) []string {
+func getColumnNames(data [][]string) []string {
 	var columns []string
 	for i, row := range data {
 		if i == 0 {

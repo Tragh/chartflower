@@ -8,7 +8,10 @@ import (
 
 func main() {
 
-	csv := selectCSV()
-	sql := convertCSVToSQL(csv)
-	fmt.Println(sql)
+	data := csvToArray()
+	chart := makeChart(data)
+	// makeFile(csv, chart)
+
+	fmt.Println(chart)
+
 }

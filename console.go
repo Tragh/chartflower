@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,18 +11,40 @@ import (
 	"strings"
 )
 
-func selectCSV() string {
+func csvToArray() [][]string {
 	var selectedCSV string
-	for i, filename := range getCSVFilenames() {
-		fmt.Println(i, strings.TrimSuffix(filename, ".csv"))
+
+	csvFilenames := getCSVFilenames()
+	for i, csvFilename := range csvFilenames {
+		csvTrimmed := strings.TrimSuffix(csvFilename, ".csv")
+		fmt.Println(strconv.Itoa(i) + ". " + csvTrimmed)
 	}
-	csvIndex := getConsoleText()
-	for i, filename := range getCSVFilenames() {
-		if strconv.Itoa(i) == csvIndex {
-			selectedCSV = filename
+
+	fmt.Print("\nChoose a CSV: ")
+	choice := getConsoleText()
+
+	for i, csvFilename := range csvFilenames {
+		csvTrimmed := strings.TrimSuffix(csvFilename, ".csv")
+
+		if choice == csvFilename {
+			selectedCSV = csvFilename
+		} else if choice == csvTrimmed {
+			selectedCSV = csvFilename
+		} else if choice == strconv.Itoa(i) {
+			selectedCSV = csvFilename
 		}
 	}
-	return selectedCSV
+
+	data := convertCSVToArray(selectedCSV)
+	return data
+}
+
+func convertCSVToArray(filename string) [][]string {
+	file, _ := os.Open("./csv/" + filename)
+	defer file.Close()
+	reader := csv.NewReader(file)
+	rows, _ := reader.ReadAll()
+	return rows
 }
 
 func getCSVFilenames() []string {

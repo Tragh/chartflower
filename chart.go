@@ -26,7 +26,9 @@ func makeChart(data [][]string) string {
 func barChart(data [][]string) string {
 	columns := getColumns(data)
 	firstRow := getFirstRow(data)
+	var labelIndex int
 	var labels []string
+	var values []string
 
 	fmt.Println()
 	for i, column := range columns {
@@ -38,14 +40,34 @@ func barChart(data [][]string) string {
 	for i, column := range columns {
 		number := strconv.Itoa(i)
 		if choice == column {
+			labelIndex = i
 			labels = getColumnData(i, data)
 		} else if choice == number {
+			labelIndex = i
 			labels = getColumnData(i, data)
 		}
 	}
 
+	fmt.Println()
+	for i, column := range columns {
+		if i != labelIndex {
+			fmt.Println(strconv.Itoa(i) + ". " + column + " eg. " + firstRow[i])
+		}
+	}
+
+	choice = getChoice("Choose values")
+
+	for i, column := range columns {
+		number := strconv.Itoa(i)
+		if choice == column {
+			values = getColumnData(i, data)
+		} else if choice == number {
+			values = getColumnData(i, data)
+		}
+	}
+
 	fmt.Println(labels)
-	// fmt.Println(firstRow)
+	fmt.Println(values)
 
 	return "bar chart here"
 }

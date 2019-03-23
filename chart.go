@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 func charts() [1]string {
@@ -26,7 +27,8 @@ func makeChart(data [][]string) string {
 func barChart(data [][]string) string {
 	columns := getColumns(data)
 	firstRow := getFirstRow(data)
-	var labelIndex int
+	var labelsIndex int
+	var valuesIndex int
 	var labels []string
 	var values []string
 
@@ -40,17 +42,17 @@ func barChart(data [][]string) string {
 	for i, column := range columns {
 		number := strconv.Itoa(i)
 		if choice == column {
-			labelIndex = i
+			labelsIndex = i
 			labels = getColumnData(i, data)
 		} else if choice == number {
-			labelIndex = i
+			labelsIndex = i
 			labels = getColumnData(i, data)
 		}
 	}
 
 	fmt.Println()
 	for i, column := range columns {
-		if i != labelIndex {
+		if i != labelsIndex {
 			fmt.Println(strconv.Itoa(i) + ". " + column + " eg. " + firstRow[i])
 		}
 	}
@@ -60,16 +62,19 @@ func barChart(data [][]string) string {
 	for i, column := range columns {
 		number := strconv.Itoa(i)
 		if choice == column {
+			valuesIndex = i
 			values = getColumnData(i, data)
 		} else if choice == number {
+			valuesIndex = i
 			values = getColumnData(i, data)
 		}
 	}
 
-	fmt.Println(labels)
-	fmt.Println(values)
+	valuesLabel := columns[valuesIndex]
+	labelsString := strings.Join(labels, ",")
+	valuesString := strings.Join(values, ",")
 
-	return "bar chart here"
+	return barChartTemplate(labelsString, valuesString, valuesLabel)
 }
 
 func getColumnData(column int, data [][]string) []string {

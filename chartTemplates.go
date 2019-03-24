@@ -31,6 +31,11 @@ func barChartTemplate(labels string, values string, valuesLabel string) string {
 							beginAtZero: false
 						}
 					}]
+				},
+				plugins: {
+					colorschemes: {
+					  scheme: 'brewer.Paired12'
+					}
 				}
 			}
 		});
@@ -68,7 +73,44 @@ func pieChartTemplate(labels string, values string, valuesLabel string) string {
 					colorschemes: {
 					  scheme: 'brewer.Paired12'
 					}
-				  }
+				}
+			}
+		});
+</script>
+</body>
+</html>
+`, labels, valuesLabel, values)
+	return html
+}
+
+func radarChartTemplate(labels string, values string, valuesLabel string) string {
+	html := fmt.Sprintf(`
+<html>
+<head>
+</head>
+<body>
+	<canvas id="myChart"></canvas>
+
+	<script src="./js/Chart.bundle.js"></script>
+	<script src="./js/chartjs-plugin-colorschemes.js"></script>
+
+	<script>
+		var ctx = document.getElementById('myChart');
+		var myChart = new Chart(ctx, {
+			type: 'radar',
+			data: {
+				labels: [%v],
+				datasets: [{
+					label: %v,
+					data: [%v],
+				}]
+			},
+			options: {
+				plugins: {
+					colorschemes: {
+					  scheme: 'brewer.Paired12'
+					}
+				}
 			}
 		});
 </script>

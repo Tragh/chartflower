@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func charts() [2]string {
-	charts := [2]string{"bar", "pie"}
+func charts() [3]string {
+	charts := [3]string{"bar", "pie", "radar"}
 	return charts
 }
 
@@ -19,11 +19,19 @@ func makeChart(data [][]string) string {
 		chart = barChart(data)
 	case "pie":
 		chart = pieChart(data)
+	case "radar":
+		chart = radarChart(data)
 	default:
 		fmt.Println("No case for", chart)
 	}
 
 	return chart
+}
+
+func radarChart(data [][]string) string {
+	labelsIndex, labelsString := chooseLabelsColumn(data)
+	valuesLabel, valuesString := chooseValuesColumn(labelsIndex, data)
+	return radarChartTemplate(labelsString, valuesString, valuesLabel)
 }
 
 func pieChart(data [][]string) string {
@@ -51,17 +59,22 @@ func chooseValuesColumn(labelsIndex int, data [][]string) (string, string) {
 		}
 	}
 
-	choice := getChoice("Choose values")
-
-	for i, column := range columnNames {
-		number := strconv.Itoa(i)
-		if choice == column {
-			valuesIndex = i
-			values = getColumnData(i, data)
-		} else if choice == number {
-			valuesIndex = i
-			values = getColumnData(i, data)
+	choice := getChoice("Choose datasets")
+	choices := strings.Fields(choice)
+	fmt.Println(choices)
+	if len(choices) == 1 {
+		for i, column := range columnNames {
+			number := strconv.Itoa(i)
+			if choice == column {
+				valuesIndex = i
+				values = getColumnData(i, data)
+			} else if choice == number {
+				valuesIndex = i
+				values = getColumnData(i, data)
+			}
 		}
+	} else {
+		// multiple datasets chosen
 	}
 	valuesLabel := columnNames[valuesIndex]
 	valuesString := strings.Join(values, ",")
@@ -124,4 +137,8 @@ func getColumnNames(data [][]string) []string {
 		}
 	}
 	return columns
+}
+
+func generateColors(number int) {
+
 }

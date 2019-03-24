@@ -1,0 +1,33 @@
+
+<html>
+<head>
+</head>
+<body>
+	<canvas id="myChart"></canvas>
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+	<script>
+		var ctx = document.getElementById('myChart');
+		var myChart = new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
+				datasets: [{
+					label: 'Frequency',
+					data: [24373121,4762938,8982417,10805580,37907119,7486889,5143059,18058207,21820970,474021,1720909,11730498,7391366,21402466,23215532,5719422,297237,17897352,19059775,28691274,8022379,2835696,6505294,562732,5910495, 93172],
+				}]
+			},
+			options: {
+				scales: {
+					yAxes: [{
+						ticks: {
+							beginAtZero: true
+						}
+					}]
+				}
+			}
+		});
+</script>
+</body>
+</html>

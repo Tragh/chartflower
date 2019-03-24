@@ -61,10 +61,16 @@ func csvToArray() [][]string {
 }
 
 func convertCSVToArray(filename string) [][]string {
-	file, _ := os.Open("./csv/" + filename)
+	file, err := os.Open("./csv/" + filename)
+	if err != nil {
+		fmt.Println(err)
+	}
 	defer file.Close()
 	reader := csv.NewReader(file)
-	rows, _ := reader.ReadAll()
+	rows, err := reader.ReadAll()
+	if err != nil {
+		fmt.Println(err)
+	}
 	return rows
 }
 

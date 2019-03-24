@@ -10,7 +10,8 @@ func barChartTemplate(labels string, values string, valuesLabel string) string {
 <body>
 	<canvas id="myChart"></canvas>
 
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+	<script src="./js/Chart.bundle.js"></script>
+	<script src="./js/chartjs-plugin-colorschemes.js"></script>
 
 	<script>
 		var ctx = document.getElementById('myChart');
@@ -27,7 +28,7 @@ func barChartTemplate(labels string, values string, valuesLabel string) string {
 				scales: {
 					yAxes: [{
 						ticks: {
-							beginAtZero: true
+							beginAtZero: false
 						}
 					}]
 				}
@@ -48,7 +49,8 @@ func pieChartTemplate(labels string, values string, valuesLabel string) string {
 <body>
 	<canvas id="myChart"></canvas>
 
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+	<script src="./js/Chart.bundle.js"></script>
+	<script src="./js/chartjs-plugin-colorschemes.js"></script>
 
 	<script>
 		var ctx = document.getElementById('myChart');
@@ -62,13 +64,11 @@ func pieChartTemplate(labels string, values string, valuesLabel string) string {
 				}]
 			},
 			options: {
-				scales: {
-					yAxes: [{
-						ticks: {
-							beginAtZero: true
-						}
-					}]
-				}
+				plugins: {
+					colorschemes: {
+					  scheme: 'brewer.Paired12'
+					}
+				  }
 			}
 		});
 </script>

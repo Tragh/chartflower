@@ -613,6 +613,7 @@ var colorSchemesPlugin$1 = {
 						break;
 					// For doughnut and pie chart, backgroundColor is set to an array of colors
 					case 'doughnut':
+					case 'bar':
 					case 'pie':
 						if (typeof dataset.backgroundColor === 'undefined') {
 							dataset.backgroundColor = dataset.data.map(function(data, dataIndex) {
